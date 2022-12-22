@@ -16,9 +16,7 @@ fn main() -> Result<()> {
 
     match &cli.action {
         Action::List => {
-            let mut table = Table::new();
-            table.add_row(row!["CHAIN_ID", "CHAIN_NAME"]);
-
+            let mut chains_info = Vec::new();
             for entry in WalkDir::new("chains/_data/chains")
                 .into_iter()
                 .filter_map(|i| i.ok())
@@ -26,21 +24,30 @@ fn main() -> Result<()> {
             {
                 let file = File::open(entry.path()).unwrap();
                 let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
-                
-                table.add_row(Row::new(vec![
-                    Cell::new(&chain_info.chain_id.to_string()),
-                    Cell::new(&chain_info.name),
-                ]));
+                chains_info.push((chain_info.chain_id, chain_info.name));
             }
+            chains_info.sort_by_key(|a| a.0);
+
+            let mut table = Table::new();
+            table.add_row(row!["CHAIN_ID", "CHAIN_NAME"]);
+            chains_info.iter().for_each(|(id, name)| {
+                table.add_row(Row::new(vec![Cell::new(&id.to_string()), Cell::new(&name)]));
+            });
+
             table.printstd();
+        }
+        Action::GetChainInfoById { id } => {
+            let file = File::open(format!(
+                "{}{}{}",
+                "chains/_data/chains/eip155-", id, ".json"
+            ))
+            .unwrap();
+            let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
+            println!("{:#?}", chain_info);
         }
         Action::Add => {
             println!("This is the add branch");
             // TODO: Implement add command
-        }
-        Action::FindChainId => {
-            println!("This is the find_chain_id branch");
-            // TODO: Implement find-chain id command
         }
     }
     Ok(())
