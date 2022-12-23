@@ -1,7 +1,7 @@
 mod cli;
 mod types;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::Parser;
 use cli::{Action, Cli};
 use std::fs::File;
@@ -41,11 +41,13 @@ fn main() -> Result<()> {
                 "{}{}{}",
                 "chains/_data/chains/eip155-", id, ".json"
             ))
-            .unwrap();
+            .with_context(|| format!("NO chain associated with this id now"))?;
             let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
+            
             println!("{}", serde_json::to_string(&chain_info).unwrap());
         }
         Action::ByName { name } => {
+            let mut find = false;
             for entry in WalkDir::new("chains/_data/chains")
                 .into_iter()
                 .filter_map(|i| i.ok())
@@ -53,9 +55,18 @@ fn main() -> Result<()> {
             {
                 let file = File::open(entry.path()).unwrap();
                 let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
-                if chain_info.name.contains(name) {
+                if chain_info
+                    .name
+                    .to_lowercase()
+                    .contains(&name.to_lowercase())
+                {
+                    find = true;
                     println!("{}", serde_json::to_string(&chain_info).unwrap());
                 }
+            }
+
+            if !find {
+                println!("NO chain associated with this name now");
             }
         }
     }
