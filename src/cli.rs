@@ -11,11 +11,14 @@ pub struct Cli {
 pub enum Action {
     /// List all chains
     List,
-    /// Get chain info by chain_id
-    GetChainInfoById {
+    /// Get chain info by chain id
+    ById {
         #[arg(short, long)]
         id: u64,
     },
-    /// Add new chain's info
-    Add,
+    /// Get chain info by chain name
+    ByName {
+        #[arg(short, long)]
+        name: String,
+    },
 }

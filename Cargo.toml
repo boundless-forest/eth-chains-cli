@@ -1,7 +1,7 @@
 [package]
 name = "eth-chains-cli"
 version = "0.1.0"
-description = "Tool for ethereum-like chains' info"
+description = "Tool for querying ethereum-like chains' info"
 author = ["boundless.forest@outlook.com"]
 edition = "2021"
 

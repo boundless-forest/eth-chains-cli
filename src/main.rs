@@ -2,9 +2,9 @@ mod cli;
 mod types;
 
 use anyhow::Result;
-use clap::{Arg, Command, Parser};
+use clap::Parser;
 use cli::{Action, Cli};
-use std::{collections::HashMap, fs::File};
+use std::fs::File;
 use types::ChainInfo;
 use walkdir::WalkDir;
 #[macro_use]
@@ -36,18 +36,27 @@ fn main() -> Result<()> {
 
             table.printstd();
         }
-        Action::GetChainInfoById { id } => {
+        Action::ById { id } => {
             let file = File::open(format!(
                 "{}{}{}",
                 "chains/_data/chains/eip155-", id, ".json"
             ))
             .unwrap();
             let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
-            println!("{:#?}", chain_info);
+            println!("{}", serde_json::to_string(&chain_info).unwrap());
         }
-        Action::Add => {
-            println!("This is the add branch");
-            // TODO: Implement add command
+        Action::ByName { name } => {
+            for entry in WalkDir::new("chains/_data/chains")
+                .into_iter()
+                .filter_map(|i| i.ok())
+                .filter(|i| i.file_type().is_file())
+            {
+                let file = File::open(entry.path()).unwrap();
+                let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
+                if chain_info.name.contains(name) {
+                    println!("{}", serde_json::to_string(&chain_info).unwrap());
+                }
+            }
         }
     }
     Ok(())
