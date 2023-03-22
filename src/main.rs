@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate prettytable;
+
 mod cli;
 mod types;
 
@@ -7,8 +10,6 @@ use cli::{Action, Cli};
 use std::fs::File;
 use types::ChainInfo;
 use walkdir::WalkDir;
-#[macro_use]
-extern crate prettytable;
 use prettytable::{Cell, Row, Table};
 
 fn main() -> Result<()> {
