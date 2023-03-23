@@ -57,14 +57,20 @@ fn main() -> Result<()> {
 			{
 				let file = File::open(entry.path()).unwrap();
 				let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
-				chains_info.push((chain_info.chain_id, chain_info.name));
+				chains_info.push((chain_info.chain_id, chain_info.name, chain_info.native_currency));
 			}
 			chains_info.sort_by_key(|a| a.0);
 
 			let mut table = Table::new();
-			table.add_row(row!["CHAIN_ID", "CHAIN_NAME"]);
-			chains_info.iter().for_each(|(id, name)| {
-				table.add_row(Row::new(vec![Cell::new(&id.to_string()), Cell::new(&name)]));
+			table.add_row(row!["CHAIN_ID", "CHAIN_NAME", "NATIVE_CURRENCY", "SYMBOL", "DECIMALS"]);
+			chains_info.iter().for_each(|(id, name, currency)| {
+				table.add_row(Row::new(vec![
+					Cell::new(&id.to_string()),
+					Cell::new(&name),
+					Cell::new(&currency.name.to_owned()),
+					Cell::new(&currency.symbol.to_owned()),
+					Cell::new(&currency.decimals.to_string()),
+				]));
 			});
 
 			table.printstd();
