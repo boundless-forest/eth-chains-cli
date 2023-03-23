@@ -1,0 +1,9 @@
+# Basic
+edition    = "2021"
+hard_tabs  = true
+max_width  = 120
+tab_spaces = 4
+
+# Imports
+imports_granularity = "Crate"
+reorder_imports     = true
