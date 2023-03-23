@@ -8,7 +8,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use cli::{Action, Cli};
 use git2::BranchType;
-use prettytable::{Cell, Row, Table};
+use prettytable::{format::Alignment::CENTER, Cell, Row, Table};
 use std::{fs::File, path::Path};
 use types::ChainInfo;
 use walkdir::WalkDir;
@@ -80,7 +80,70 @@ fn main() -> Result<()> {
 				.with_context(|| format!("NO chain associated with this id now"))?;
 			let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
 
-			println!("{}", serde_json::to_string(&chain_info).unwrap());
+			let mut table = Table::new();
+			table.add_row(row![
+				Cell::new_align("CHAIN_ID", CENTER),
+				Cell::new(&chain_info.chain_id.to_string())
+			]);
+			table.add_row(row![
+				Cell::new_align("CHAIN_NAME", CENTER),
+				Cell::new(&chain_info.name.to_string())
+			]);
+			table.add_row(row![
+				Cell::new_align("NATIVE_CURRENCY", CENTER),
+				Cell::new(&chain_info.native_currency.name.to_owned())
+			]);
+			table.add_row(row![
+				Cell::new_align("SYMBOL", CENTER),
+				Cell::new(&chain_info.native_currency.symbol.to_owned())
+			]);
+			table.add_row(row![
+				Cell::new_align("DECIMALS", CENTER),
+				Cell::new(&chain_info.native_currency.decimals.to_string())
+			]);
+			table.add_row(row![
+				Cell::new_align("NETWORK", CENTER),
+				Cell::new(&chain_info.network_id.to_string())
+			]);
+			table.add_row(row![Cell::new_align("INFO", CENTER), Cell::new(&chain_info.info_url)]);
+			table.add_row(row![
+				Cell::new_align("RPC", CENTER),
+				if chain_info.rpc.is_empty() {
+					Cell::new("None")
+				} else {
+					Cell::new(&chain_info.rpc.join("\n"))
+				}
+			]);
+			table.add_row(row![
+				Cell::new_align("FAUCETS", CENTER),
+				if chain_info.faucets.is_empty() {
+					Cell::new("None")
+				} else {
+					Cell::new(&chain_info.faucets.join("\n"))
+				}
+			]);
+			table.add_row(row![
+				Cell::new_align("EXPLORERS", CENTER),
+				if let Some(e) = chain_info.explorers {
+					Cell::new(
+						&e.into_iter()
+							.map(|i| vec!(i.name, i.url).join(" "))
+							.collect::<Vec<String>>()
+							.join("\n"),
+					)
+				} else {
+					Cell::new("None")
+				}
+			]);
+			table.add_row(row![
+				Cell::new_align("FEATURES", CENTER),
+				if let Some(f) = chain_info.features {
+					Cell::new(&f.into_iter().map(|i| i.name).collect::<Vec<String>>().join("\n"))
+				} else {
+					Cell::new("None")
+				}
+			]);
+			table.printstd();
 		}
 		Action::ByName { name } => {
 			let mut find = false;
