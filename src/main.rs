@@ -26,8 +26,7 @@ fn main() -> Result<()> {
 	let local_path = Path::new(&home_dir).join(".chains");
 
 	let mut proxy_opts = ProxyOptions::new();
-	//  TODO: Use env variable
-	proxy_opts.url("http://127.0.0.1:7890"); // remove this line if you don't use proxy
+	proxy_opts.auto();
 
 	if let Ok(repo) = Repository::open(&local_path) {
 		let mut fo = FetchOptions::new();
