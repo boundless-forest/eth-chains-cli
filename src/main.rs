@@ -7,58 +7,66 @@ mod types;
 use anyhow::{Context, Result};
 use clap::Parser;
 use cli::{Action, Cli};
-use git2::BranchType;
+use git2::{
+	build::{CheckoutBuilder, RepoBuilder},
+	FetchOptions, ProxyOptions, Repository,
+};
 use prettytable::{format::Alignment::CENTER, Cell, Row, Table};
 use std::{fs::File, path::Path};
 use types::ChainInfo;
 use walkdir::WalkDir;
 
+const BRANCH_NAME: &str = "master";
+const REMOTE_URL: &str = "https://github.com/ethereum-lists/chains.git";
+
 fn main() -> Result<()> {
 	let cli = Cli::parse();
 
-	let remote_url = "https://github.com/ethereum-lists/chains.git";
-	let local_path = Path::new("chains");
-	let branch_name = "master";
+	let home_dir = std::env::var("HOME").expect("HOME not set");
+	let local_path = Path::new(&home_dir).join(".chains");
 
-	let mut proxy_opts = git2::ProxyOptions::new();
+	let mut proxy_opts = ProxyOptions::new();
 	//  TODO: Use env variable
 	proxy_opts.url("http://127.0.0.1:7890"); // remove this line if you don't use proxy
 
-	if let Ok(repo) = git2::Repository::open(local_path) {
-		let mut fo = git2::FetchOptions::new();
+	if let Ok(repo) = Repository::open(&local_path) {
+		let mut fo = FetchOptions::new();
 		fo.proxy_options(proxy_opts);
 
-		repo.find_remote("origin")?.fetch(&[branch_name], Some(&mut fo), None)?;
+		repo.find_remote("origin")?.fetch(&[BRANCH_NAME], Some(&mut fo), None)?;
 
 		let status = repo.statuses(None)?;
 		if !status.is_empty() {
-			panic!("Local repository is not clean. Please commit or discard changes before continuing.");
+			panic!(
+				"Local {:?} repository is not clean. Please discard changes and try again.",
+				local_path
+			);
 		}
 
 		let fetch_head = repo.find_reference("FETCH_HEAD")?;
 		let fetch_commit = repo.reference_to_annotated_commit(&fetch_head)?;
 		if repo.merge_analysis(&[&fetch_commit])?.0.is_fast_forward() {
-			let mut ref_head = repo.find_reference(&format!("refs/heads/{}", branch_name))?;
+			let mut ref_head = repo.find_reference(&format!("refs/heads/{}", BRANCH_NAME))?;
 			ref_head.set_target(
 				fetch_commit.id(),
-				&format!("Fast-Forward: Setting {} to id: {}", branch_name, fetch_commit.id()),
+				&format!("Fast-Forward: Setting {} to id: {}", BRANCH_NAME, fetch_commit.id()),
 			)?;
-			repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))?;
+			repo.checkout_head(Some(CheckoutBuilder::default().force()))?;
 		}
 	} else {
-		let mut fo = git2::FetchOptions::new();
+		let mut fo = FetchOptions::new();
 		fo.proxy_options(proxy_opts);
 
-		let mut builder = git2::build::RepoBuilder::new();
+		let mut builder = RepoBuilder::new();
 		builder.fetch_options(fo);
 
-		builder.clone(remote_url, local_path)?;
+		builder.clone(REMOTE_URL, &local_path)?;
 	}
 
 	match &cli.action {
 		Action::List => {
 			let mut chains_info = Vec::new();
-			for entry in WalkDir::new("chains/_data/chains")
+			for entry in WalkDir::new(local_path.join("_data/chains"))
 				.into_iter()
 				.filter_map(|i| i.ok())
 				.filter(|i| i.file_type().is_file())
@@ -84,7 +92,7 @@ fn main() -> Result<()> {
 			table.printstd();
 		}
 		Action::ById { id } => {
-			let file = File::open(format!("{}{}{}", "chains/_data/chains/eip155-", id, ".json"))
+			let file = File::open(local_path.join(format!("_data/chains/eip155-{}.json", id)))
 				.with_context(|| format!("NO chain associated with this id now"))?;
 			let chain_info: ChainInfo = serde_json::from_reader(file).expect("Unable to parse chain info");
 
@@ -92,7 +100,7 @@ fn main() -> Result<()> {
 		}
 		Action::ByName { name } => {
 			let mut find = false;
-			for entry in WalkDir::new("chains/_data/chains")
+			for entry in WalkDir::new(local_path.join("_data/chains"))
 				.into_iter()
 				.filter_map(|i| i.ok())
 				.filter(|i| i.file_type().is_file())
