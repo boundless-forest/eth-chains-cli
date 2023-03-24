@@ -18,6 +18,7 @@ fn main() -> Result<()> {
 
 	let remote_url = "https://github.com/ethereum-lists/chains.git";
 	let local_path = Path::new("chains");
+	let branch_name = "master";
 
 	let mut proxy_opts = git2::ProxyOptions::new();
 	//  TODO: Use env variable
@@ -27,16 +28,23 @@ fn main() -> Result<()> {
 		let mut fo = git2::FetchOptions::new();
 		fo.proxy_options(proxy_opts);
 
-		let mut upstream = repo.find_remote("origin")?;
-		let upstream_branch = repo.find_branch("origin/master", BranchType::Remote)?;
-		let upstream_branch_ref = upstream_branch.get();
-		upstream.fetch(
-			&[upstream_branch_ref.name().expect("Unable to find remote branch info")],
-			Some(&mut fo),
-			None,
-		)?;
-		let upstream_object = repo.find_object(upstream_branch_ref.target().expect("Unable to get Oid"), None)?;
-		repo.reset(&upstream_object, git2::ResetType::Hard, None)?;
+		repo.find_remote("origin")?.fetch(&[branch_name], Some(&mut fo), None)?;
+
+		let status = repo.statuses(None)?;
+		if !status.is_empty() {
+			panic!("Local repository is not clean. Please commit or discard changes before continuing.");
+		}
+
+		let fetch_head = repo.find_reference("FETCH_HEAD")?;
+		let fetch_commit = repo.reference_to_annotated_commit(&fetch_head)?;
+		if repo.merge_analysis(&[&fetch_commit])?.0.is_fast_forward() {
+			let mut ref_head = repo.find_reference(&format!("refs/heads/{}", branch_name))?;
+			ref_head.set_target(
+				fetch_commit.id(),
+				&format!("Fast-Forward: Setting {} to id: {}", branch_name, fetch_commit.id()),
+			)?;
+			repo.checkout_head(Some(git2::build::CheckoutBuilder::default().force()))?;
+		}
 	} else {
 		let mut fo = git2::FetchOptions::new();
 		fo.proxy_options(proxy_opts);
