@@ -62,11 +62,11 @@ fn main() -> Result<()> {
 			chains_info.sort_by_key(|a| a.0);
 
 			let mut table = Table::new();
-			table.add_row(row!["CHAIN_ID", "CHAIN_NAME", "NATIVE_CURRENCY", "SYMBOL", "DECIMALS"]);
+			table.add_row(row!["CHAIN_NAME", "CHAIN_ID", "NATIVE_CURRENCY", "SYMBOL", "DECIMALS"]);
 			chains_info.iter().for_each(|(id, name, currency)| {
 				table.add_row(Row::new(vec![
-					Cell::new(&id.to_string()),
 					Cell::new(&name),
+					Cell::new(&id.to_string()),
 					Cell::new(&currency.name.to_owned()),
 					Cell::new(&currency.symbol.to_owned()),
 					Cell::new(&currency.decimals.to_string()),
@@ -78,72 +78,9 @@ fn main() -> Result<()> {
 		Action::ById { id } => {
 			let file = File::open(format!("{}{}{}", "chains/_data/chains/eip155-", id, ".json"))
 				.with_context(|| format!("NO chain associated with this id now"))?;
-			let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
+			let chain_info: ChainInfo = serde_json::from_reader(file).expect("Unable to parse chain info");
 
-			let mut table = Table::new();
-			table.add_row(row![
-				Cell::new_align("CHAIN_ID", CENTER),
-				Cell::new(&chain_info.chain_id.to_string())
-			]);
-			table.add_row(row![
-				Cell::new_align("CHAIN_NAME", CENTER),
-				Cell::new(&chain_info.name.to_string())
-			]);
-			table.add_row(row![
-				Cell::new_align("NATIVE_CURRENCY", CENTER),
-				Cell::new(&chain_info.native_currency.name.to_owned())
-			]);
-			table.add_row(row![
-				Cell::new_align("SYMBOL", CENTER),
-				Cell::new(&chain_info.native_currency.symbol.to_owned())
-			]);
-			table.add_row(row![
-				Cell::new_align("DECIMALS", CENTER),
-				Cell::new(&chain_info.native_currency.decimals.to_string())
-			]);
-			table.add_row(row![
-				Cell::new_align("NETWORK", CENTER),
-				Cell::new(&chain_info.network_id.to_string())
-			]);
-			table.add_row(row![Cell::new_align("INFO", CENTER), Cell::new(&chain_info.info_url)]);
-			table.add_row(row![
-				Cell::new_align("RPC", CENTER),
-				if chain_info.rpc.is_empty() {
-					Cell::new("None")
-				} else {
-					Cell::new(&chain_info.rpc.join("\n"))
-				}
-			]);
-			table.add_row(row![
-				Cell::new_align("FAUCETS", CENTER),
-				if chain_info.faucets.is_empty() {
-					Cell::new("None")
-				} else {
-					Cell::new(&chain_info.faucets.join("\n"))
-				}
-			]);
-			table.add_row(row![
-				Cell::new_align("EXPLORERS", CENTER),
-				if let Some(e) = chain_info.explorers {
-					Cell::new(
-						&e.into_iter()
-							.map(|i| vec!(i.name, i.url).join(" "))
-							.collect::<Vec<String>>()
-							.join("\n"),
-					)
-				} else {
-					Cell::new("None")
-				}
-			]);
-			table.add_row(row![
-				Cell::new_align("FEATURES", CENTER),
-				if let Some(f) = chain_info.features {
-					Cell::new(&f.into_iter().map(|i| i.name).collect::<Vec<String>>().join("\n"))
-				} else {
-					Cell::new("None")
-				}
-			]);
-			table.printstd();
+			print_chain_info(chain_info);
 		}
 		Action::ByName { name } => {
 			let mut find = false;
@@ -152,11 +89,11 @@ fn main() -> Result<()> {
 				.filter_map(|i| i.ok())
 				.filter(|i| i.file_type().is_file())
 			{
-				let file = File::open(entry.path()).unwrap();
-				let chain_info: ChainInfo = serde_json::from_reader(file).unwrap();
+				let file = File::open(entry.path()).with_context(|| format!("NO chain associated with this id now"))?;
+				let chain_info: ChainInfo = serde_json::from_reader(file).expect("Unable to parse chain info");
 				if chain_info.name.to_lowercase().contains(&name.to_lowercase()) {
 					find = true;
-					println!("{}", serde_json::to_string(&chain_info).unwrap());
+					print_chain_info(chain_info);
 				}
 			}
 
@@ -166,4 +103,59 @@ fn main() -> Result<()> {
 		}
 	}
 	Ok(())
+}
+
+fn print_chain_info(info: ChainInfo) {
+	let mut table = Table::new();
+	table.add_row(row![Cell::new_align("CHAIN_NAME", CENTER), Cell::new(&info.name.to_string())]);
+	table.add_row(row![Cell::new_align("CHAIN_ID", CENTER), Cell::new(&info.chain_id.to_string())]);
+	table.add_row(row![
+		Cell::new_align("NATIVE_CURRENCY", CENTER),
+		Cell::new(&info.native_currency.name)
+	]);
+	table.add_row(row![Cell::new_align("SYMBOL", CENTER), Cell::new(&info.native_currency.symbol)]);
+	table.add_row(row![
+		Cell::new_align("DECIMALS", CENTER),
+		Cell::new(&info.native_currency.decimals.to_string())
+	]);
+	table.add_row(row![Cell::new_align("NETWORK", CENTER), Cell::new(&info.network_id.to_string())]);
+	table.add_row(row![Cell::new_align("INFO", CENTER), Cell::new(&info.info_url)]);
+	table.add_row(row![
+		Cell::new_align("RPC", CENTER),
+		if info.rpc.is_empty() {
+			Cell::new("None")
+		} else {
+			Cell::new(&info.rpc.join("\n"))
+		}
+	]);
+	table.add_row(row![
+		Cell::new_align("FAUCETS", CENTER),
+		if info.faucets.is_empty() {
+			Cell::new("None")
+		} else {
+			Cell::new(&info.faucets.join("\n"))
+		}
+	]);
+	table.add_row(row![
+		Cell::new_align("EXPLORERS", CENTER),
+		if let Some(e) = info.explorers {
+			Cell::new(
+				&e.into_iter()
+					.map(|i| vec![i.name, i.url].join(" "))
+					.collect::<Vec<String>>()
+					.join("\n"),
+			)
+		} else {
+			Cell::new("None")
+		}
+	]);
+	table.add_row(row![
+		Cell::new_align("FEATURES", CENTER),
+		if let Some(f) = info.features {
+			Cell::new(&f.into_iter().map(|i| i.name).collect::<Vec<String>>().join("\n"))
+		} else {
+			Cell::new("None")
+		}
+	]);
+	table.printstd();
 }
