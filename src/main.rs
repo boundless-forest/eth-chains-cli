@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate prettytable;
 
-mod cli;
-mod types;
+pub mod cli;
+pub mod types;
 
 use anyhow::{Context, Result};
 use clap::Parser;

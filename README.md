@@ -5,7 +5,7 @@ A simple tool for querying RPC, Token info of the Ethereum chains.
 ## Install
 
 ```sh
-cargo install eth-chains-cl
+cargo install eth-chains-cli
 ```
 
 ## Usage
