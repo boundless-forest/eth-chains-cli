@@ -1,10 +1,12 @@
 [package]
 name = "eth-chains-cli"
-version = "0.2.0"
-description = "Tool for querying ethereum-like chains' info"
 author = ["boundless.forest@outlook.com"]
+readme = "README.md"
+repository = "https://github.com/boundless-forest/eth-chains-cli"
+description = "Tool for querying ethereum-like chains' info"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+version = "0.3.0"
 
 [dependencies]
 clap = { version = "4.0.29", features = ["derive"] }
