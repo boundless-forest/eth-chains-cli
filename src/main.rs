@@ -9,7 +9,7 @@ use clap::Parser;
 use cli::{Action, Cli};
 use git2::{
 	build::{CheckoutBuilder, RepoBuilder},
-	FetchOptions, ProxyOptions, Repository,
+	FetchOptions, Repository,
 };
 use prettytable::{format::Alignment::CENTER, Cell, Row, Table};
 use std::{fs::File, path::Path};
@@ -25,13 +25,8 @@ fn main() -> Result<()> {
 	let home_dir = std::env::var("HOME").expect("HOME not set");
 	let local_path = Path::new(&home_dir).join(".chains");
 
-	let mut proxy_opts = ProxyOptions::new();
-	proxy_opts.auto();
-
 	if let Ok(repo) = Repository::open(&local_path) {
 		let mut fo = FetchOptions::new();
-		fo.proxy_options(proxy_opts);
-
 		repo.find_remote("origin")?.fetch(&[BRANCH_NAME], Some(&mut fo), None)?;
 
 		let status = repo.statuses(None)?;
@@ -53,11 +48,8 @@ fn main() -> Result<()> {
 			repo.checkout_head(Some(CheckoutBuilder::default().force()))?;
 		}
 	} else {
-		let mut fo = FetchOptions::new();
-		fo.proxy_options(proxy_opts);
-
 		let mut builder = RepoBuilder::new();
-		builder.fetch_options(fo);
+		builder.fetch_options(FetchOptions::new());
 
 		builder.clone(REMOTE_URL, &local_path)?;
 	}
