@@ -8,7 +8,7 @@ use colored::*;
 use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table};
 use git2::{
 	build::{CheckoutBuilder, RepoBuilder},
-	FetchOptions, Repository,
+	FetchOptions, Repository, ProxyOptions,
 };
 use std::{fs::File, path::Path};
 use types::ChainInfo;
@@ -23,10 +23,15 @@ fn main() -> Result<()> {
 	let home_dir = std::env::var("HOME").expect("HOME not set");
 	let local_path = Path::new(&home_dir).join(".chains");
 
+	let mut proxy_opts = ProxyOptions::new();
+	proxy_opts.auto();
+	let mut fetch_option = FetchOptions::new();
+	fetch_option.proxy_options(proxy_opts);
+
 	if local_path.exists() {
+		println!("Fetching the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
 		let repo = Repository::open(&local_path)?;
-		let mut fo = FetchOptions::new();
-		repo.find_remote("origin")?.fetch(&[BRANCH_NAME], Some(&mut fo), None)?;
+		repo.find_remote("origin")?.fetch(&[BRANCH_NAME], Some(&mut fetch_option), None)?;
 
 		let status = repo.statuses(None)?;
 		if !status.is_empty() {
@@ -47,10 +52,10 @@ fn main() -> Result<()> {
 			repo.checkout_head(Some(CheckoutBuilder::default().force()))?;
 		}
 	} else {
+		println!("Downloading the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
 		let mut builder = RepoBuilder::new();
-		let mut fetch_option = FetchOptions::new();
+		
 		fetch_option.depth(1);
-
 		builder.fetch_options(fetch_option);
 		builder.clone(REMOTE_URL, &local_path)?;
 	}
