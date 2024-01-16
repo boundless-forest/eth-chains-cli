@@ -23,7 +23,8 @@ fn main() -> Result<()> {
 	let home_dir = std::env::var("HOME").expect("HOME not set");
 	let local_path = Path::new(&home_dir).join(".chains");
 
-	if let Ok(repo) = Repository::open(&local_path) {
+	if local_path.exists() {
+		let repo = Repository::open(&local_path)?;
 		let mut fo = FetchOptions::new();
 		repo.find_remote("origin")?.fetch(&[BRANCH_NAME], Some(&mut fo), None)?;
 
@@ -70,7 +71,13 @@ fn main() -> Result<()> {
 
 			let mut table = Table::new();
 			table
-				.set_header(vec!["CHAIN_NAME", "CHAIN_ID", "NATIVE_CURRENCY", "SYMBOL", "DECIMALS"])
+				.set_header(vec![
+					Cell::new("CHAIN_NAME").fg(Color::Green),
+					Cell::new("CHAIN_ID").fg(Color::Green),
+					Cell::new("NATIVE_CURRENCY").fg(Color::Green),
+					Cell::new("SYMBOL").fg(Color::Green),
+					Cell::new("DECIMALS").fg(Color::Green),
+				])
 				.load_preset(UTF8_FULL)
 				.apply_modifier(UTF8_ROUND_CORNERS)
 				.set_content_arrangement(ContentArrangement::Dynamic);
@@ -83,7 +90,6 @@ fn main() -> Result<()> {
 					Cell::new(&currency.decimals.to_string()),
 				]);
 			});
-
 			println!("{table}");
 		}
 		Action::ById { id } => {
