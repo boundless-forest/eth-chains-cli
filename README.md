@@ -81,27 +81,28 @@ $ eth-chains-cli by-name -n "Ethereum"
 $ eth-chains-cli list
 
 ╭──────────────────────┬──────────┬───────────────────────┬────────┬──────────╮
-│ CHAIN_NAME          ┆ CHAIN_ID ┆ NATIVE_CURRENCY       ┆ SYMBOL ┆ DECIMALS│
+│ CHAIN_NAME           ┆ CHAIN_ID ┆ NATIVE_CURRENCY       ┆ SYMBOL ┆ DECIMALS │
 ╞══════════════════════╪══════════╪═══════════════════════╪════════╪══════════╡
-│ Ethereum Mainnet    ┆ 1        ┆ Ether                 ┆ ETH    ┆ 18      │
+│ Ethereum Mainnet     ┆ 1        ┆ Ether                 ┆ ETH    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Expanse Network     ┆ 2        ┆ Expanse Network Ether ┆ EXP    ┆ 18      │
+│ Expanse Network      ┆ 2        ┆ Expanse Network Ether ┆ EXP    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Ropsten             ┆ 3        ┆ Ropsten Ether         ┆ ETH    ┆ 18      │
+│ Ropsten              ┆ 3        ┆ Ropsten Ether         ┆ ETH    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Rinkeby             ┆ 4        ┆ Rinkeby Ether         ┆ ETH    ┆ 18      │
+│ Rinkeby              ┆ 4        ┆ Rinkeby Ether         ┆ ETH    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Goerli              ┆ 5        ┆ Goerli Ether          ┆ ETH    ┆ 18      │
+│ Goerli               ┆ 5        ┆ Goerli Ether          ┆ ETH    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Kotti Testnet       ┆ 6        ┆ Kotti Ether           ┆ KOT    ┆ 18      │
+│ Kotti Testnet        ┆ 6        ┆ Kotti Ether           ┆ KOT    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ ThaiChain           ┆ 7        ┆ ThaiChain Ether       ┆ TCH    ┆ 18      │
+│ ThaiChain            ┆ 7        ┆ ThaiChain Ether       ┆ TCH    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Ubiq                ┆ 8        ┆ Ubiq Ether            ┆ UBQ    ┆ 18      │
+│ Ubiq                 ┆ 8        ┆ Ubiq Ether            ┆ UBQ    ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ Ubiq Network Testnet┆ 9        ┆ Ubiq Testnet Ether    ┆ TUBQ   ┆ 18      │
+│ Ubiq Network Testnet ┆ 9        ┆ Ubiq Testnet Ether    ┆ TUBQ   ┆ 18       │
 ├╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌╌╌┤
-│ OP Mainnet          ┆ 10       ┆ Ether                 ┆ ETH    ┆ 18      │
+│ OP Mainnet           ┆ 10       ┆ Ether                 ┆ ETH    ┆ 18       │
 ╰──────────────────────┴──────────┴───────────────────────┴────────┴──────────╯
+
 .....
 ```

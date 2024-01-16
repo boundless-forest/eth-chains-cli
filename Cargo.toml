@@ -6,7 +6,7 @@ repository = "https://github.com/boundless-forest/eth-chains-cli"
 description = "Tool for querying ethereum-like chains' info"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-version = "0.5.0"
+version = "0.5.1"
 
 [dependencies]
 clap = { version = "4.0.29", features = ["derive"] }

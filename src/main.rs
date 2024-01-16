@@ -84,10 +84,10 @@ fn main() -> Result<()> {
 			chains_info.iter().for_each(|(id, name, currency)| {
 				table.add_row(vec![
 					Cell::new(name),
-					Cell::new(&id.to_string()),
-					Cell::new(&currency.name.to_owned()),
-					Cell::new(&currency.symbol.to_owned()),
-					Cell::new(&currency.decimals.to_string()),
+					Cell::new(id.to_string()),
+					Cell::new(currency.name.to_owned()),
+					Cell::new(currency.symbol.to_owned()),
+					Cell::new(currency.decimals.to_string()),
 				]);
 			});
 			println!("{table}");
@@ -154,7 +154,7 @@ fn print_chain_info(info: ChainInfo) {
 		.set_content_arrangement(ContentArrangement::Dynamic);
 
 	table.add_row(vec![Cell::new("CHAIN_NAME").fg(Color::Green), Cell::new(&info.name)]);
-	table.add_row(vec![Cell::new("CHAIN_ID").fg(Color::Green), Cell::new(&info.chain_id.to_string())]);
+	table.add_row(vec![Cell::new("CHAIN_ID").fg(Color::Green), Cell::new(info.chain_id.to_string())]);
 	table.add_row(vec![
 		Cell::new("NATIVE_CURRENCY").fg(Color::Green),
 		Cell::new(&info.native_currency.name),
@@ -162,16 +162,16 @@ fn print_chain_info(info: ChainInfo) {
 	table.add_row(vec![Cell::new("SYMBOL").fg(Color::Green), Cell::new(&info.native_currency.symbol)]);
 	table.add_row(vec![
 		Cell::new("DECIMALS").fg(Color::Green),
-		Cell::new(&info.native_currency.decimals.to_string()),
+		Cell::new(info.native_currency.decimals.to_string()),
 	]);
-	table.add_row(vec![Cell::new("NETWORK").fg(Color::Green), Cell::new(&info.network_id.to_string())]);
+	table.add_row(vec![Cell::new("NETWORK").fg(Color::Green), Cell::new(info.network_id.to_string())]);
 	table.add_row(vec![Cell::new("INFO").fg(Color::Green), Cell::new(&info.info_url)]);
 	table.add_row(vec![
 		Cell::new("RPC").fg(Color::Green),
 		if info.rpc.is_empty() {
 			Cell::new("None")
 		} else {
-			Cell::new(&info.rpc.join("\n"))
+			Cell::new(info.rpc.join("\n"))
 		},
 	]);
 	table.add_row(vec![
@@ -179,14 +179,14 @@ fn print_chain_info(info: ChainInfo) {
 		if info.faucets.is_empty() {
 			Cell::new("None")
 		} else {
-			Cell::new(&info.faucets.join("\n"))
+			Cell::new(info.faucets.join("\n"))
 		},
 	]);
 	table.add_row(vec![
 		Cell::new("EXPLORERS").fg(Color::Green),
 		if let Some(e) = info.explorers {
 			Cell::new(
-				&e.into_iter()
+				e.into_iter()
 					.map(|i| vec![i.name, i.url].join(" "))
 					.collect::<Vec<String>>()
 					.join("\n"),
@@ -198,7 +198,7 @@ fn print_chain_info(info: ChainInfo) {
 	table.add_row(vec![
 		Cell::new("FEATURES").fg(Color::Green),
 		if let Some(f) = info.features {
-			Cell::new(&f.into_iter().map(|i| i.name).collect::<Vec<String>>().join("\n"))
+			Cell::new(f.into_iter().map(|i| i.name).collect::<Vec<String>>().join("\n"))
 		} else {
 			Cell::new("None")
 		},
