@@ -7,6 +7,7 @@ pub mod types;
 use anyhow::{Context, Result};
 use clap::Parser;
 use cli::{Action, Cli};
+use colored::*;
 use git2::{
 	build::{CheckoutBuilder, RepoBuilder},
 	FetchOptions, Repository,
@@ -49,8 +50,10 @@ fn main() -> Result<()> {
 		}
 	} else {
 		let mut builder = RepoBuilder::new();
-		builder.fetch_options(FetchOptions::new());
+		let mut fetch_option = FetchOptions::new();
+		fetch_option.depth(1);
 
+		builder.fetch_options(fetch_option);
 		builder.clone(REMOTE_URL, &local_path)?;
 	}
 
@@ -105,7 +108,7 @@ fn main() -> Result<()> {
 			}
 
 			if !find {
-				println!("NO chain associated with this name now");
+				println!("{}", "NO chain associated with this name now".red());
 			}
 		}
 	}
