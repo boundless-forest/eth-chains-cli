@@ -72,7 +72,7 @@ fn main() -> Result<()> {
 			table.add_row(row!["CHAIN_NAME", "CHAIN_ID", "NATIVE_CURRENCY", "SYMBOL", "DECIMALS"]);
 			chains_info.iter().for_each(|(id, name, currency)| {
 				table.add_row(Row::new(vec![
-					Cell::new(&name),
+					Cell::new(name),
 					Cell::new(&id.to_string()),
 					Cell::new(&currency.name.to_owned()),
 					Cell::new(&currency.symbol.to_owned()),
@@ -114,7 +114,7 @@ fn main() -> Result<()> {
 
 fn print_chain_info(info: ChainInfo) {
 	let mut table = Table::new();
-	table.add_row(row![Cell::new_align("CHAIN_NAME", CENTER), Cell::new(&info.name.to_string())]);
+	table.add_row(row![Cell::new_align("CHAIN_NAME", CENTER), Cell::new(&info.name)]);
 	table.add_row(row![Cell::new_align("CHAIN_ID", CENTER), Cell::new(&info.chain_id.to_string())]);
 	table.add_row(row![
 		Cell::new_align("NATIVE_CURRENCY", CENTER),
