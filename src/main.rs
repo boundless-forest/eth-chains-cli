@@ -6,15 +6,10 @@ use clap::Parser;
 use cli::{Action, Cli};
 use colored::*;
 use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table};
-use git2::{
-	build::{CheckoutBuilder, RepoBuilder},
-	FetchOptions, Repository, ProxyOptions,
-};
-use std::{fs::File, path::Path};
+use std::{env, fs::File, path::Path, process::Command};
 use types::ChainInfo;
 use walkdir::WalkDir;
 
-const BRANCH_NAME: &str = "master";
 const REMOTE_URL: &str = "https://github.com/ethereum-lists/chains.git";
 
 fn main() -> Result<()> {
@@ -23,41 +18,15 @@ fn main() -> Result<()> {
 	let home_dir = std::env::var("HOME").expect("HOME not set");
 	let local_path = Path::new(&home_dir).join(".chains");
 
-	let mut proxy_opts = ProxyOptions::new();
-	proxy_opts.auto();
-	let mut fetch_option = FetchOptions::new();
-	fetch_option.proxy_options(proxy_opts);
-
 	if local_path.exists() {
 		println!("Fetching the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
-		let repo = Repository::open(&local_path)?;
-		repo.find_remote("origin")?.fetch(&[BRANCH_NAME], Some(&mut fetch_option), None)?;
-
-		let status = repo.statuses(None)?;
-		if !status.is_empty() {
-			panic!(
-				"Local {:?} repository is not clean. Please discard changes and try again.",
-				local_path
-			);
-		}
-
-		let fetch_head = repo.find_reference("FETCH_HEAD")?;
-		let fetch_commit = repo.reference_to_annotated_commit(&fetch_head)?;
-		if repo.merge_analysis(&[&fetch_commit])?.0.is_fast_forward() {
-			let mut ref_head = repo.find_reference(&format!("refs/heads/{}", BRANCH_NAME))?;
-			ref_head.set_target(
-				fetch_commit.id(),
-				&format!("Fast-Forward: Setting {} to id: {}", BRANCH_NAME, fetch_commit.id()),
-			)?;
-			repo.checkout_head(Some(CheckoutBuilder::default().force()))?;
-		}
+		env::set_current_dir(&local_path)?;
+		Command::new("git").args(["pull", "--depth", "1"]).status()?;
 	} else {
 		println!("Downloading the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
-		let mut builder = RepoBuilder::new();
-		
-		fetch_option.depth(1);
-		builder.fetch_options(fetch_option);
-		builder.clone(REMOTE_URL, &local_path)?;
+		Command::new("git")
+			.args(["clone", REMOTE_URL, &local_path.to_string_lossy(), "--depth", "1"])
+			.status()?;
 	}
 
 	match &cli.action {
