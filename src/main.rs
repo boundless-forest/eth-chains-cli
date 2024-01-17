@@ -6,7 +6,12 @@ use clap::Parser;
 use cli::{Action, Cli};
 use colored::*;
 use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table};
-use std::{env, fs::File, path::Path, process::Command};
+use std::{
+	env,
+	fs::File,
+	path::Path,
+	process::{Command, Stdio},
+};
 use types::ChainInfo;
 use walkdir::WalkDir;
 
@@ -21,11 +26,17 @@ fn main() -> Result<()> {
 	if local_path.exists() {
 		println!("Fetching the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
 		env::set_current_dir(&local_path)?;
-		Command::new("git").args(["pull", "--depth", "1"]).status()?;
+		Command::new("git")
+			.args(["pull", "--depth", "1"])
+			.stdout(Stdio::null())
+			.stderr(Stdio::null())
+			.status()?;
 	} else {
 		println!("Downloading the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
 		Command::new("git")
 			.args(["clone", REMOTE_URL, &local_path.to_string_lossy(), "--depth", "1"])
+			.stdout(Stdio::null())
+			.stderr(Stdio::null())
 			.status()?;
 	}
 
