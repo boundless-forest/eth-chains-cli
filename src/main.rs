@@ -27,7 +27,12 @@ fn main() -> Result<()> {
 		println!("Fetching the latest chain info from {REMOTE_URL} and store in {:?}", local_path);
 		env::set_current_dir(&local_path)?;
 		Command::new("git")
-			.args(["pull", "--depth", "1"])
+			.args(["fetch", "--depth", "1"])
+			.stdout(Stdio::null())
+			.stderr(Stdio::null())
+			.status()?;
+		Command::new("git")
+			.args(["reset", "--hard", "FETCH_HEAD"])
 			.stdout(Stdio::null())
 			.stderr(Stdio::null())
 			.status()?;
